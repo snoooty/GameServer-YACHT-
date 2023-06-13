@@ -13,9 +13,10 @@ public class ActionThread extends Thread{
 	PrintStream out = null;
 	RoomManager rManager = new RoomManager();
 	
-	public ActionThread(Socket sock, ArrayList<Socket> users) {
+	public ActionThread(Socket sock, ArrayList<Socket> users,RoomManager rManager) {
 		this.sock = sock;
 		this.users = users;
+		this.rManager = rManager;
 	}
 	
 	@Override
