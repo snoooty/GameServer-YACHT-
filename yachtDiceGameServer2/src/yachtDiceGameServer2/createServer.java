@@ -24,6 +24,7 @@ public class createServer {
 		
 		while(true) {
 			
+			System.out.println("접속대기중 입니다.");
 			Socket sock = serverSocket.accept();
 			UserInfo user = new UserInfo(sock);
 			
@@ -66,6 +67,7 @@ public class createServer {
 			
 			
 			ActionThread acThread = new ActionThread(sock, users, rManager);
+			acThread.start();
 		}
 		
 	}
