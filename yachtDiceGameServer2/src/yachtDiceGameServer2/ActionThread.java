@@ -7,8 +7,6 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.Random;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -21,6 +19,7 @@ public class ActionThread extends Thread{
 	BufferedReader in = null;
 	PrintStream out = null;
 	RoomManager rManager = new RoomManager();
+	GameLogic gameLogic = new GameLogic();
 	String usersMsg;
 	JSONObject jsonObject;
 	JSONParser jsonParser = new JSONParser();
@@ -44,54 +43,72 @@ public class ActionThread extends Thread{
 			System.out.println(jsonObject.get("clickName"));
 			
 			String clickName = (String) jsonObject.get("clickName");
+			String userName;
+			
 			
 			if(clickName.equals("DiceRollClick")) {// user가 diceRoll 클릭 시 반응
-				System.out.println(jsonObject.get("userName"));
-				System.out.println(jsonObject.get("count"));
+				System.out.println("json으로 받은 id : " + jsonObject.get("userName"));
+				System.out.println("주사위 카운트 : " + jsonObject.get("count"));
 				
-				Random roll = new Random();
-				
-				int dice1,dice2,dice3,dice4,dice5; // 주사위 갯
-				
-				dice1 = roll.nextInt(6) + 1;
-				dice2 = roll.nextInt(6) + 1;
-				dice3 = roll.nextInt(6) + 1;
-				dice4 = roll.nextInt(6) + 1;
-				dice5 = roll.nextInt(6) + 1;
+				userName = (String) jsonObject.get("userName");
 				
 				jsonObject = new JSONObject();
 				jsonObject.put("clickName", "diceRollClick");
-				jsonObject.put("dice1", dice1);
-				jsonObject.put("dice2", dice2);
-				jsonObject.put("dice3", dice3);
-				jsonObject.put("dice4", dice4);
-				jsonObject.put("dice5", dice5);
+				jsonObject.put("rollUser", userName);
+				
+				// 주사위 굴리기
+				jsonObject.put("dice1", gameLogic.rollDice());
+				jsonObject.put("dice2", gameLogic.rollDice());
+				jsonObject.put("dice3", gameLogic.rollDice());
+				jsonObject.put("dice4", gameLogic.rollDice());
+				jsonObject.put("dice5", gameLogic.rollDice());
 				
 				System.out.println("주사위 굴려서 보내기");
 				System.out.println(jsonObject.toString());
 				
-				for(int l = 0; l < rManager.roomList.size(); l++) {
-					System.out.println("roomManager.roomList.userList.size()" + rManager.roomList.get(l).userList.size());
-					for(int j = 0; j < rManager.roomList.get(l).userList.size(); j++) {
-						if(rManager.roomList.get(l).userList.get(j).getSock().equals(sock)) {
-							int roomNum = rManager.roomList.get(l).getRoomNum();
-							System.out.println("roomNum : " + roomNum);
-							for(int k = 0; k < rManager.roomList.get(l).GetUserSize(); k++) {
-								out = new PrintStream(rManager.roomList.get(l).userList.get(k).getSock().getOutputStream());
-								if(in != null) {
-									out.println(jsonObject.toString());
-									out.flush();
-									System.out.println("클라이언트로 메세지 보냈나?");
-								}
-							}
-						}
-					}
-				}	
 				
 			}else if(clickName.equals("Dice1KeepClick")) {// user가 diceKeep 클릭 시 반응
 				
 			}else if(clickName.equals("Score")) {
 				
+			}else if(clickName.equals("currentUser")) {
+				
+				
+				
+			}
+			
+			for(int l = 0; l < rManager.roomList.size(); l++) {
+				System.out.println("roomManager.roomList.userList.size()" + rManager.roomList.get(l).userList.size());
+				for(int j = 0; j < rManager.roomList.get(l).userList.size(); j++) {
+					if(rManager.roomList.get(l).userList.get(j).getSock().equals(sock)) {
+						int roomNum = rManager.roomList.get(l).getRoomNum();
+						System.out.println("roomNum : " + roomNum);
+						for(int k = 0; k < rManager.roomList.get(l).GetUserSize(); k++) {
+							out = new PrintStream(rManager.roomList.get(l).userList.get(k).getSock().getOutputStream());
+							
+							if(clickName.equals("currentUser")) {
+								if(k == 0) {
+									
+									jsonObject = new JSONObject();
+									jsonObject.put("clickName", "current");
+									
+								}else if(k == 1){
+									
+									jsonObject = new JSONObject();
+									jsonObject.put("clickName", "wait");
+									
+								}
+							}
+							
+							if(in != null) {
+								System.out.println("보내기 전 json : " + jsonObject.toString());
+								out.println(jsonObject.toString());
+								out.flush();
+								System.out.println("클라이언트로 메세지 보냈나?");
+							}
+						}
+					}
+				}
 			}
 		}
 		}
