@@ -24,6 +24,7 @@ public class ActionThread extends Thread{
 	JSONObject jsonObject;
 	JSONParser jsonParser = new JSONParser();
 	
+	
 	public ActionThread(Socket sock, ArrayList<Socket> users,RoomManager rManager) {
 		this.sock = sock;
 		this.users = users;
@@ -44,9 +45,13 @@ public class ActionThread extends Thread{
 			
 			String clickName = (String) jsonObject.get("clickName");
 			String userName;
+			boolean dice1Keep = true,dice2Keep = true,dice3Keep = true,dice4Keep = true,dice5Keep = true;
+			
 			
 			
 			if(clickName.equals("DiceRollClick")) {// user가 diceRoll 클릭 시 반응
+				
+				
 				System.out.println("json으로 받은 id : " + jsonObject.get("userName"));
 				System.out.println("주사위 카운트 : " + jsonObject.get("count"));
 				
@@ -57,21 +62,86 @@ public class ActionThread extends Thread{
 				jsonObject.put("rollUser", userName);
 				
 				// 주사위 굴리기
-				jsonObject.put("dice1", gameLogic.rollDice());
-				jsonObject.put("dice2", gameLogic.rollDice());
-				jsonObject.put("dice3", gameLogic.rollDice());
-				jsonObject.put("dice4", gameLogic.rollDice());
-				jsonObject.put("dice5", gameLogic.rollDice());
+				if(dice1Keep) {
+					jsonObject.put("dice1", gameLogic.rollDice());
+				}
+				if(dice2Keep) {
+					jsonObject.put("dice2", gameLogic.rollDice());
+				}
+				if(dice3Keep) {
+					jsonObject.put("dice3", gameLogic.rollDice());
+				}
+				if(dice4Keep) {
+					jsonObject.put("dice4", gameLogic.rollDice());
+				}
+				if(dice5Keep) {
+					jsonObject.put("dice5", gameLogic.rollDice());
+				}
 				
 				System.out.println("주사위 굴려서 보내기");
 				System.out.println(jsonObject.toString());
 				
 				
-			}else if(clickName.equals("Dice1KeepClick")) {// user가 diceKeep 클릭 시 반응
+			}
+			if(clickName.equals("DiceKeepClick")) {// user가 diceKeep 클릭 시 반응
 				
-			}else if(clickName.equals("Score")) {
+				System.out.println("각 주사위의 Keep값 : " + dice1Keep + " | " + dice2Keep + " | " + dice3Keep + " | " + dice4Keep
+						+ " | " + dice5Keep);
 				
-			}else if(clickName.equals("currentUser")) {
+				if(jsonObject.get("keepDice").equals("1")) {
+					if(jsonObject.get("booleanKeep").equals(true)) {
+						dice1Keep = false;
+					}else if(jsonObject.get("booleanKeep").equals(false)) {
+						dice1Keep = true;
+					}
+					
+				}
+				if(jsonObject.get("keepDice").equals(2)) {
+					if(jsonObject.get("booleanKeep").equals(true)) {
+						dice2Keep = false;
+					}else if(jsonObject.get("booleanKeep").equals(false)) {
+						dice2Keep = true;
+					}
+				}
+				if(jsonObject.get("keepDice").equals(3)) {
+					if(jsonObject.get("booleanKeep").equals(true)) {
+						dice3Keep = false;
+					}else if(jsonObject.get("booleanKeep").equals(false)) {
+						dice3Keep = true;
+					}
+				}
+				if(jsonObject.get("keepDice").equals(4)) {
+					if(jsonObject.get("booleanKeep").equals(true)) {
+						dice4Keep = false;
+					}else if(jsonObject.get("booleanKeep").equals(false)) {
+						dice4Keep = true;
+					}
+				}
+				if(jsonObject.get("keepDice").equals(5)) {
+					if(jsonObject.get("booleanKeep").equals(true)) {
+						dice5Keep = false;
+					}else if(jsonObject.get("booleanKeep").equals(false)) {
+						dice5Keep = true;
+					}
+				}
+				
+				System.out.println("각 주사위의 바뀐 Keep값 : " + dice1Keep + " | " + dice2Keep + " | " + dice3Keep + " | " + dice4Keep
+						+ " | " + dice5Keep);
+				
+				jsonObject = new JSONObject();
+				jsonObject.put("clickName", "DiceKeepClick");
+				jsonObject.put("dice1Keep", dice1Keep);
+				jsonObject.put("dice2Keep", dice2Keep);
+				jsonObject.put("dice3Keep", dice3Keep);
+				jsonObject.put("dice4Keep", dice4Keep);
+				jsonObject.put("dice5Keep", dice5Keep);
+				
+				
+			}
+			if(clickName.equals("Score")) {
+				
+			}
+			if(clickName.equals("currentUser")) {
 				
 				
 				
