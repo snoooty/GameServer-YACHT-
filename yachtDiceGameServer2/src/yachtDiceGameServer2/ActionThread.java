@@ -23,12 +23,14 @@ public class ActionThread extends Thread{
 	String usersMsg;
 	JSONObject jsonObject;
 	JSONParser jsonParser = new JSONParser();
+	String player1,player2;
+	UserInfo userInfo;
 	
-	
-	public ActionThread(Socket sock, ArrayList<Socket> users,RoomManager rManager) {
+	public ActionThread(Socket sock, ArrayList<Socket> users,RoomManager rManager,UserInfo userInfo) {
 		this.sock = sock;
 		this.users = users;
 		this.rManager = rManager;
+		this.userInfo = userInfo;
 	}
 	
 	@Override
@@ -45,6 +47,7 @@ public class ActionThread extends Thread{
 			
 			String clickName = (String) jsonObject.get("clickName");
 			String userName;
+			String diceClick = "";
 			boolean dice1Keep = true,dice2Keep = true,dice3Keep = true,dice4Keep = true,dice5Keep = true;
 			
 			
@@ -85,42 +88,74 @@ public class ActionThread extends Thread{
 			}
 			if(clickName.equals("DiceKeepClick")) {// user가 diceKeep 클릭 시 반응
 				
-				System.out.println("각 주사위의 Keep값 : " + dice1Keep + " | " + dice2Keep + " | " + dice3Keep + " | " + dice4Keep
-						+ " | " + dice5Keep);
+//				System.out.println("각 주사위의 Keep값 : " + dice1Keep + " | " + dice2Keep + " | " + dice3Keep + " | " + dice4Keep
+//						+ " | " + dice5Keep);
 				
-				if(jsonObject.get("keepDice").equals("1")) {
-					if(jsonObject.get("booleanKeep").equals(true)) {
+				if(jsonObject.get("booleanKeep1").equals(true)) {
+					dice1Keep = true;
+				}else if(jsonObject.get("booleanKeep1").equals(false)) {
+					dice1Keep = false;
+				}
+				if(jsonObject.get("booleanKeep2").equals(true)) {
+					dice2Keep = true;
+				}else if(jsonObject.get("booleanKeep2").equals(false)) {
+					dice2Keep = false;
+				}
+				if(jsonObject.get("booleanKeep3").equals(true)) {
+					dice3Keep = true;
+				}else if(jsonObject.get("booleanKeep3").equals(false)) {
+					dice3Keep = false;
+				}
+				if(jsonObject.get("booleanKeep4").equals(true)) {
+					dice4Keep = true;
+				}else if(jsonObject.get("booleanKeep4").equals(false)) {
+					dice4Keep = false;
+				}
+				if(jsonObject.get("booleanKeep5").equals(true)) {
+					dice5Keep = true;
+				}else if(jsonObject.get("booleanKeep5").equals(false)) {
+					dice5Keep = false;
+				}
+				
+				
+				if(Integer.parseInt(jsonObject.get("keepDice").toString()) == 1) {
+					diceClick = "dice1";
+					if(jsonObject.get("booleanKeep1").equals(true)) {
 						dice1Keep = false;
-					}else if(jsonObject.get("booleanKeep").equals(false)) {
+					}else if(jsonObject.get("booleanKeep1").equals(false)) {
 						dice1Keep = true;
 					}
 					
 				}
-				if(jsonObject.get("keepDice").equals(2)) {
-					if(jsonObject.get("booleanKeep").equals(true)) {
+				if(Integer.parseInt(jsonObject.get("keepDice").toString()) == 2) {
+					diceClick = "dice2";
+					if(jsonObject.get("booleanKeep2").equals(true)) {
 						dice2Keep = false;
-					}else if(jsonObject.get("booleanKeep").equals(false)) {
+					}else if(jsonObject.get("booleanKeep2").equals(false)) {
 						dice2Keep = true;
 					}
 				}
-				if(jsonObject.get("keepDice").equals(3)) {
-					if(jsonObject.get("booleanKeep").equals(true)) {
+				if(Integer.parseInt(jsonObject.get("keepDice").toString()) == 3) {
+					diceClick = "dice3";
+					if(jsonObject.get("booleanKeep3").equals(true)) {
 						dice3Keep = false;
-					}else if(jsonObject.get("booleanKeep").equals(false)) {
+					}else if(jsonObject.get("booleanKeep3").equals(false)) {
 						dice3Keep = true;
 					}
 				}
-				if(jsonObject.get("keepDice").equals(4)) {
-					if(jsonObject.get("booleanKeep").equals(true)) {
+				if(Integer.parseInt(jsonObject.get("keepDice").toString()) == 4) {
+					diceClick = "dice4";
+					if(jsonObject.get("booleanKeep4").equals(true)) {
 						dice4Keep = false;
-					}else if(jsonObject.get("booleanKeep").equals(false)) {
+					}else if(jsonObject.get("booleanKeep4").equals(false)) {
 						dice4Keep = true;
 					}
 				}
-				if(jsonObject.get("keepDice").equals(5)) {
-					if(jsonObject.get("booleanKeep").equals(true)) {
+				if(Integer.parseInt(jsonObject.get("keepDice").toString()) == 5) {
+					diceClick = "dice5";
+					if(jsonObject.get("booleanKeep5").equals(true)) {
 						dice5Keep = false;
-					}else if(jsonObject.get("booleanKeep").equals(false)) {
+					}else if(jsonObject.get("booleanKeep5").equals(false)) {
 						dice5Keep = true;
 					}
 				}
@@ -130,6 +165,7 @@ public class ActionThread extends Thread{
 				
 				jsonObject = new JSONObject();
 				jsonObject.put("clickName", "DiceKeepClick");
+				jsonObject.put("diceClick", diceClick);
 				jsonObject.put("dice1Keep", dice1Keep);
 				jsonObject.put("dice2Keep", dice2Keep);
 				jsonObject.put("dice3Keep", dice3Keep);
@@ -141,9 +177,12 @@ public class ActionThread extends Thread{
 			if(clickName.equals("Score")) {
 				
 			}
-			if(clickName.equals("currentUser")) {
+			if(clickName.equals("userName")) {
 				
-				
+				jsonObject = new JSONObject();
+				jsonObject.put("userName", "userName");
+				jsonObject.put("player1", player1);
+//				jsonObject.put("player2", player2);
 				
 			}
 			
@@ -156,16 +195,31 @@ public class ActionThread extends Thread{
 						for(int k = 0; k < rManager.roomList.get(l).GetUserSize(); k++) {
 							out = new PrintStream(rManager.roomList.get(l).userList.get(k).getSock().getOutputStream());
 							
+							
+							if(rManager.roomList.get(l).userList.get(0).getUser_name() == null) {
+								rManager.roomList.get(l).userList.get(0).setUser_name((String) jsonObject.get("userName"));
+							}
+							if(rManager.roomList.get(l).userList.size() == 2) {
+								if(rManager.roomList.get(l).userList.get(1).getUser_name() == null) {
+									rManager.roomList.get(l).userList.get(1).setUser_name((String) jsonObject.get("userName"));
+								}
+							}
+							
 							if(clickName.equals("currentUser")) {
 								if(k == 0) {
 									
 									jsonObject = new JSONObject();
 									jsonObject.put("clickName", "current");
-									
+									jsonObject.put("player1", rManager.roomList.get(l).userList.get(0).getUser_name());
+									if(rManager.roomList.get(l).userList.size() == 2) {
+										jsonObject.put("player2", rManager.roomList.get(l).userList.get(1).getUser_name());
+									}
 								}else if(k == 1){
 									
 									jsonObject = new JSONObject();
 									jsonObject.put("clickName", "wait");
+									jsonObject.put("player1", rManager.roomList.get(l).userList.get(0).getUser_name());
+									jsonObject.put("player2", rManager.roomList.get(l).userList.get(1).getUser_name());
 									
 								}
 							}

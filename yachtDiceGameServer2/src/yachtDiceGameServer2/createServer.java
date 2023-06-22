@@ -22,6 +22,7 @@ public class createServer {
 		YachtDiceRoom ydRoom = new YachtDiceRoom();
 		
 		
+		
 		while(true) {
 			
 			System.out.println("접속대기중 입니다.");
@@ -66,7 +67,7 @@ public class createServer {
 			}
 			
 			
-			ActionThread acThread = new ActionThread(sock, users, rManager);
+			ActionThread acThread = new ActionThread(sock, users, rManager, user);
 			acThread.start();
 		}
 		
