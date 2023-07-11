@@ -174,7 +174,17 @@ public class ActionThread extends Thread{
 				
 				
 			}
-			if(clickName.equals("Score")) {
+			if(clickName.equals("ScoreClick")) {
+				
+				String scoreName = (String) jsonObject.get("scoreName");
+				String player = (String) jsonObject.get("player");
+				int score = Integer.parseInt(String.valueOf(jsonObject.get("score")));
+				
+				jsonObject = new JSONObject();
+				jsonObject.put("clickName", "ScoreClick");
+				jsonObject.put("scoreName", scoreName);
+				jsonObject.put("player", player);
+				jsonObject.put("score", score);
 				
 			}
 			if(clickName.equals("userName")) {
@@ -182,7 +192,6 @@ public class ActionThread extends Thread{
 				jsonObject = new JSONObject();
 				jsonObject.put("userName", "userName");
 				jsonObject.put("player1", player1);
-//				jsonObject.put("player2", player2);
 				
 			}
 			

@@ -7,6 +7,7 @@ public class UserInfo {
 	Socket sock = null;
 	YachtDiceRoom ydRoom;
 	String user_name;
+	int roomNum;
 	
 	public UserInfo(Socket sock) {
 		this.sock = sock;
@@ -22,6 +23,14 @@ public class UserInfo {
 	
 	public void setUser_name(String name) {
 		this.user_name = name;
+	}
+	
+	public int getRoomNum() {
+		return roomNum;
+	}
+	
+	public void setRoomNum(int roomNum) {
+		this.roomNum = roomNum;
 	}
 	
 	public void enterRoom(YachtDiceRoom room) {

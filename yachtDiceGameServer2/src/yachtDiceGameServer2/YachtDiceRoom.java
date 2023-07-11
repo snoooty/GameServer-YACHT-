@@ -15,18 +15,18 @@ List<UserInfo> userList;
 		userList = new ArrayList<UserInfo>();
 	}
 
-	public YachtDiceRoom(UserInfo userSock) {// 방생성
+	public YachtDiceRoom(UserInfo user) {// 방생성
 		userList = new ArrayList<UserInfo>();
-		userList.add(userSock);
+		userList.add(user);
 	}
 	
-	public void enterUser(UserInfo userSock) {// 유저 입장		
+	public void enterUser(UserInfo user) {// 유저 입장		
 		if(GetUserSize() == 2) {
 			System.out.println("방이 전부 찼습니다.");
 		}else {
-			userList.add(userSock);
+			userList.add(user);
 			System.out.println("유저입장");
-		}			
+		}
 	}
 	
 	public void exitRoom(UserInfo userSock) {// 유저 퇴장

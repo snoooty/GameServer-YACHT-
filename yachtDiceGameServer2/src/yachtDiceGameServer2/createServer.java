@@ -20,7 +20,7 @@ public class createServer {
 		ServerSocket serverSocket = new ServerSocket(port);
 		RoomManager rManager = new RoomManager();
 		YachtDiceRoom ydRoom = new YachtDiceRoom();
-		
+		CreateRoom room = new CreateRoom();
 		
 		
 		while(true) {
@@ -36,39 +36,44 @@ public class createServer {
 			+ "포트로 연결되었습니다.");
 			System.out.println("접속시간 : " + LocalTime.now());
 			
-			users.add(sock);
+			room.createAndEnterRoom(sock, user, ydRoom, rManager);
 			
-			user.enterRoom(ydRoom);// 유저 방에입장
-			ydRoom.enterUser(user);// 방에 유저 정보 설정
+			PlayGameThread playThread = new PlayGameThread(sock,rManager,user);
+			playThread.start();
 			
-			if(rManager.roomCount() == 0) {// 최초로 방을 방 리스트에 추가
-				ydRoom.setRoomNum(sock.getPort() + sock.getLocalPort());// 방번호 설정
-				System.out.println("방 번호 설정 : " + ydRoom.getRoomNum());
-				rManager.createRoom(ydRoom);// 방생성
-				System.out.println("방 생성 후 roomCount : " + rManager.roomCount());
-			}else if(rManager.roomList.get(rManager.roomCount() -1).GetUserSize() == 2
-					&& users.size() > rManager.roomCount() * 2){// 최근 방에 유저 수가 최대일때 마다 방 리스트에 추가
-				ydRoom = new YachtDiceRoom();
-				user.enterRoom(ydRoom);// 유저 방에입장
-				ydRoom.enterUser(user);// 방에 유저 정보 설정
-				ydRoom.setRoomNum(sock.getPort() + sock.getLocalPort());// 방번호 설정
-				System.out.println("방 번호 설정 : " + ydRoom.getRoomNum());
-				rManager.createRoom(ydRoom);// 방생성
-				System.out.println("방 생성 후 roomCount : " + rManager.roomCount());
-			}
-			
-			System.out.println("현재 방 번호 : " + ydRoom.getRoomNum());
-			System.out.println("들어간 유저 정보 : " + ydRoom.userList.get(ydRoom.GetUserSize() - 1).getSock());
-			System.out.println("방 생성 후 userCount : " + ydRoom.GetUserSize());
-									
-			for(int i = 0; i < rManager.roomCount(); i++) {
-				System.out.println(rManager.roomList.get(i).getRoomNum() + "번방의 유저 수 : "
-			+ rManager.roomList.get(i).GetUserSize());
-			}
-			
-			
-			ActionThread acThread = new ActionThread(sock, users, rManager, user);
-			acThread.start();
+//			users.add(sock);
+//			
+//			user.enterRoom(ydRoom);// 유저 방에입장
+//			ydRoom.enterUser(user);// 방에 유저 정보 설정
+//			
+//			if(rManager.roomCount() == 0) {// 최초로 방을 방 리스트에 추가
+//				ydRoom.setRoomNum(sock.getPort() + sock.getLocalPort());// 방번호 설정
+//				System.out.println("방 번호 설정 : " + ydRoom.getRoomNum());
+//				rManager.createRoom(ydRoom);// 방생성
+//				System.out.println("방 생성 후 roomCount : " + rManager.roomCount());
+//			}else if(rManager.roomList.get(rManager.roomCount() -1).GetUserSize() == 2
+//					&& users.size() > rManager.roomCount() * 2){// 최근 방에 유저 수가 최대일때 마다 방 리스트에 추가
+//				ydRoom = new YachtDiceRoom();
+//				user.enterRoom(ydRoom);// 유저 방에입장
+//				ydRoom.enterUser(user);// 방에 유저 정보 설정
+//				ydRoom.setRoomNum(sock.getPort() + sock.getLocalPort());// 방번호 설정
+//				System.out.println("방 번호 설정 : " + ydRoom.getRoomNum());
+//				rManager.createRoom(ydRoom);// 방생성
+//				System.out.println("방 생성 후 roomCount : " + rManager.roomCount());
+//			}
+//			
+//			System.out.println("현재 방 번호 : " + ydRoom.getRoomNum());
+//			System.out.println("들어간 유저 정보 : " + ydRoom.userList.get(ydRoom.GetUserSize() - 1).getSock());
+//			System.out.println("방 생성 후 userCount : " + ydRoom.GetUserSize());
+//									
+//			for(int i = 0; i < rManager.roomCount(); i++) {
+//				System.out.println(rManager.roomList.get(i).getRoomNum() + "번방의 유저 수 : "
+//			+ rManager.roomList.get(i).GetUserSize());
+//			}
+//			
+//			
+//			ActionThread acThread = new ActionThread(sock, users, rManager, user);
+//			acThread.start();
 		}
 		
 	}
