@@ -7,6 +7,7 @@ import java.io.PrintStream;
 import java.net.Socket;
 import java.net.SocketException;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -15,6 +16,7 @@ public class PlayGameThread extends Thread{
 	
 	Socket sock;
 	RoomManager rManager;
+	YachtDiceRoom ydRoom;
 	UserInfo user;
 	String usersMsg;
 	BufferedReader in = null;
@@ -24,10 +26,11 @@ public class PlayGameThread extends Thread{
 	GameLogic gameLogic = new GameLogic();
 	String player1,player2;
 	
-	public PlayGameThread(Socket sock,RoomManager rManager,UserInfo user) {
+	public PlayGameThread(Socket sock,RoomManager rManager,UserInfo user,YachtDiceRoom ydRoom) {
 		this.sock = sock;
 		this.rManager = rManager;
 		this.user = user;
+		this.ydRoom = ydRoom;
 	}
 	
 	@Override
@@ -38,15 +41,111 @@ public class PlayGameThread extends Thread{
 			while(true) {
 				in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 				usersMsg = in.readLine();
-				if(usersMsg == null) break;
 				Object obj = jsonParser.parse(usersMsg);
 				jsonObject = (JSONObject) obj;
-				System.out.println(jsonObject.get("clickName"));
+				
+				System.out.println("clickName 값 : " + jsonObject.get("clickName"));
 				
 				String clickName = (String) jsonObject.get("clickName");
+				String category = (String) jsonObject.get("category");
+				System.out.println("send RoomList 받은 메세지의 카테고리 : " + category);
+				
+				if(clickName == null) {
+					clickName = "비어있음";
+				}
+				if(category == null) {
+					category = "값이 없음";
+				}
+				
 				String userName;
 				String diceClick = "";
 				boolean dice1Keep = true,dice2Keep = true,dice3Keep = true,dice4Keep = true,dice5Keep = true;
+				
+				if(rManager != null && category.equals("getRoomList")) {
+					
+					out = new PrintStream(sock.getOutputStream());
+					
+					JSONArray jArray = new JSONArray();
+									
+					for(int l = 0; l < rManager.roomList.size(); l++) {
+						
+						JSONObject sObject = new JSONObject();
+						sObject.put("roomName", rManager.roomList.get(l).roomName);
+						sObject.put("roomNum", rManager.roomList.get(l).roomNum);
+						sObject.put("personner", rManager.roomList.get(l).GetUserSize());
+						jArray.add(sObject);
+						
+					}
+					
+					jsonObject = new JSONObject();
+					jsonObject.put("category", "getRoomList");
+					jsonObject.put("List", jArray);						
+					
+					System.out.println("보낼 json값 : " + jsonObject.toString());
+					out.println(jsonObject.toString());
+					out.flush();
+					
+				}else if(category.equals("getRoomList")){
+					
+					out = new PrintStream(sock.getOutputStream());
+					
+					jsonObject = new JSONObject();
+					jsonObject.put("category", "getRoomList");
+					jsonObject.put("List", "없음");
+					
+					System.out.println("보낼 json값 : " + jsonObject.toString());
+					out.println(jsonObject.toString());
+					out.flush();
+					
+				}
+				
+				if(category.equals("createRoom")) {
+					
+					out = new PrintStream(sock.getOutputStream());
+					
+					int roomNum = Integer.parseInt(jsonObject.get("roomNum").toString());
+					String roomName = (String) jsonObject.get("userName");
+					
+					System.out.println("방 번호는 " + roomNum + " 이고, 유저 이름은 " + roomName + " 입니다.");						
+					
+					user.setRoomNum(roomNum);
+					user.setUser_name(roomName);
+					ydRoom.setRoomNum(roomNum);
+					ydRoom.setRoomName(roomName);
+					
+					user.enterRoom(ydRoom);
+					ydRoom.enterUser(user);
+					rManager.createRoom(ydRoom);
+					
+					jsonObject = new JSONObject();
+					jsonObject.put("category", "createRoom");
+					out.println(jsonObject.toString());
+					out.flush();
+				}
+				
+				if(category.equals("enterRoom")) {
+					
+					out = new PrintStream(sock.getOutputStream());
+					
+					int roomNum = Integer.parseInt(jsonObject.get("roomNum").toString());
+					System.out.println("입장하는 방번호는 " + roomNum + " 입니다.");
+					
+					user.setRoomNum(roomNum);
+					
+					for (int i = 0; i < rManager.roomList.size(); i++) {
+						
+						if(rManager.roomList.get(i).getRoomNum() == roomNum) {
+							user.enterRoom(rManager.roomList.get(i));
+							rManager.roomList.get(i).enterUser(user);
+						}						
+					}
+					
+					jsonObject = new JSONObject();
+					jsonObject.put("category","enterRoom");
+					out.println(jsonObject.toString());
+					out.flush();
+					
+				}
 				
 				if(clickName.equals("DiceRollClick")) {// user가 diceRoll 클릭 시 반응
 					

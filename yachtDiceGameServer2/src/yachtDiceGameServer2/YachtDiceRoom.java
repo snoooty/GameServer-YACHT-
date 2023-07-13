@@ -39,7 +39,7 @@ List<UserInfo> userList;
 	}
 	
 	public void setRoomName(String roomName) {// 방이름설정
-		this.roomName = roomName + "의 방";
+		this.roomName = roomName;
 	}
 	
 	public String GetRoomName() {// 방이름 가져오기

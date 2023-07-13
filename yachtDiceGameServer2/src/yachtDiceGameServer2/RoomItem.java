@@ -6,6 +6,12 @@ public class RoomItem {
 	int roomNum;
 	int userSize;
 	
+	public RoomItem(String roomName,int roomNum,int userSize) {
+		this.roomName = roomName;
+		this.roomNum = roomNum;
+		this.userSize = userSize;
+	}
+	
 	public String getRoomName() {
 		return roomName;
 	}

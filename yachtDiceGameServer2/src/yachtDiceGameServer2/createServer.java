@@ -19,7 +19,6 @@ public class createServer {
 		// 서버소켓을 생성하고 포트번호 설정
 		ServerSocket serverSocket = new ServerSocket(port);
 		RoomManager rManager = new RoomManager();
-		YachtDiceRoom ydRoom = new YachtDiceRoom();
 		CreateRoom room = new CreateRoom();
 		
 		
@@ -28,6 +27,7 @@ public class createServer {
 			System.out.println("접속대기중 입니다.");
 			Socket sock = serverSocket.accept();
 			UserInfo user = new UserInfo(sock);
+			YachtDiceRoom ydRoom = new YachtDiceRoom();
 			
 			System.out.println("유저 소켓" + sock);			
 			System.out.println("사용자가 접속했습니다.");
@@ -35,10 +35,8 @@ public class createServer {
 			+ "포트에" + sock.getLocalAddress()+"의 "+sock.getLocalPort()
 			+ "포트로 연결되었습니다.");
 			System.out.println("접속시간 : " + LocalTime.now());
-			
-			room.createAndEnterRoom(sock, user, ydRoom, rManager);
-			
-			PlayGameThread playThread = new PlayGameThread(sock,rManager,user);
+						
+			PlayGameThread playThread = new PlayGameThread(sock,rManager,user,ydRoom);
 			playThread.start();
 			
 //			users.add(sock);
